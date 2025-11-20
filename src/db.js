@@ -6,6 +6,7 @@ const db = {
 	posts: [
 	{id: "1", userId: "1", title: "Helo Node", content: "My first post!"},
 	{id: "2", userId: "1", title: "Refactoring", content: "Makes code better."},
+	{id: "3", userId: "1", title: "New Post", content: "Checking git history"}
 	]
 }
 
