@@ -1,7 +1,7 @@
 const db = {
 	users: [
-	{id: "1". name:"John Doe", email:"john@example.com"},
-	{id: "2". name:"Jane Smith", email:"jane@example.com"}
+	{id: "1". name:"John Doe", email:"john@example.com", password: "password123"},
+	{id: "2". name:"Jane Smith", email:"jane@example.com", password: "secretpass"}
 	],
 	posts: [
 	{id: "1", userId: "1", title: "Helo Node", content: "My first post!"},
