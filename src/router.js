@@ -3,6 +3,9 @@ import {
   getAllUsers,
   getUserById,
   createUser,
+  getAllPost,
+  getPostById,
+  createPost,
   handleNotFound,
 } from "./handler.js";
 
@@ -22,6 +25,21 @@ const routes = [
       GET: getUserById,
     },
   },
+  {
+    // matches /api/posts
+    path: /^\/api\/posts$/,
+    handlers: {
+      GET: getAllPost,
+      POST: createPost,
+    },
+  },
+  {
+	  // matches /api/posts/:id
+	  path: /^\/api\/posts\/([a-zA-Z0-9]+)$/,
+	  handlers: {
+		  GET: getPostById,
+	  }
+  }
 ];
 
 export default function router(req, res) {
