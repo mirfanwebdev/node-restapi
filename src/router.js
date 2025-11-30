@@ -6,6 +6,8 @@ import {
   getAllPost,
   getPostById,
   createPost,
+  getCommentByPostId,
+  createComment,
   handleNotFound,
 } from "./handler.js";
 
@@ -38,6 +40,13 @@ const routes = [
 	  path: /^\/api\/posts\/([a-zA-Z0-9]+)$/,
 	  handlers: {
 		  GET: getPostById,
+	  }
+  },
+  {
+	  path: /^\/api\/posts\/([a-zA-Z0-9]+)\/comments$/,
+	  handlers: {
+		  GET: getCommentByPostId,
+		  POST: createComment,
 	  }
   }
 ];
