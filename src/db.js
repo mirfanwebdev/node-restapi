@@ -28,6 +28,14 @@ const db = {
       content: "Checking git history",
     },
   ],
+  comments: [
+	{
+		id: "1", postId: "1", userId: "2", content: "Great first post, John!"
+	},
+	{
+		id: "2", postId: "1", userId: "1", content: "Thanks Jane!",
+	}
+  ],
 };
 
 export default db;
