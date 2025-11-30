@@ -125,6 +125,53 @@ export async function createPost(req, res) {
   }
 }
 
+// comments handlers
+export function getCommentByPostId(req, res, postId) {
+	const post = db.posts.find((p) => p.id === postId);
+	
+	if (!post) {
+		return sendJSON(res, { message: "Post not found" }, 404);
+	}
+	
+	const comments = db.comments.filter((c) => c.postId === postId);
+	sendJSON(res, comments);
+}
+
+export async function createComment(req, res, postId) {
+	// check authentication
+	const authUser = authenticate(req);
+	if (!authUser) {
+		return sendJSON(res, { message: "Unauthorized" }, 401);
+	}
+	
+	// verify post exists
+	const post = db.posts.find((p) => p.id === postId);
+	if (!post) {
+		return sendJSON(res, { message: "Post not found" }, 404);
+	}
+	
+	try {
+		const { content } = await bodyParser(req);
+		
+		if (!content) {
+			return sendJSON(res, { message: "content is required"}, 400);
+		}
+		
+		const newComment = {
+			id: (db.comments.length + 1).toString(),
+			postId: postId,
+			userId: authUser.id,
+			content,
+		};
+		
+		db.comments.push(newComment);
+		sendJSON(res, newComment, 201);
+	} catch (err) {
+		sendJSON(res, { message: err.message || "Invalid request"}, 400)
+	} 
+	
+}
+
 export function handleNotFound(req, res) {
   sendJSON(res, { message: "Route not found" }, 404);
 }
