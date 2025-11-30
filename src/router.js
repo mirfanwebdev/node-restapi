@@ -10,6 +10,7 @@ import {
   createComment,
   handleNotFound,
 } from "./handler.js";
+import { authWrapper } from "./utils.js";
 
 const routes = [
   {
@@ -17,7 +18,7 @@ const routes = [
     path: /^\/api\/users$/,
     handlers: {
       GET: getAllUsers,
-      POST: createUser,
+      POST: authWrapper(createUser),
     },
   },
   {
@@ -32,7 +33,7 @@ const routes = [
     path: /^\/api\/posts$/,
     handlers: {
       GET: getAllPost,
-      POST: createPost,
+      POST: authWrapper(createPost),
     },
   },
   {
@@ -46,7 +47,7 @@ const routes = [
 	  path: /^\/api\/posts\/([a-zA-Z0-9]+)\/comments$/,
 	  handlers: {
 		  GET: getCommentByPostId,
-		  POST: createComment,
+		  POST: authWrapper(createComment),
 	  }
   }
 ];

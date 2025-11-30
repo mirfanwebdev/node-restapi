@@ -22,12 +22,14 @@ export function getUserById(req, res, id) {
 }
 
 export async function createUser(req, res) {
+  /*
   // check authentication
   const authenticatedUser = authenticate(req);
   if (!authenticatedUser) {
     return sendJSON(res, { message: "Unauthorized" }, 401);
   }
-
+  */
+  
   try {
     const { name, email, password } = await bodyParser(req);
 
@@ -97,12 +99,15 @@ export function getPostById(req, res, id) {
 }
 
 export async function createPost(req, res) {
+  /*
   // check authentication
   const authUser = authenticate(req);
 
   if (!authUser) {
     return sendJSON(res, { message: "Unauthorized" }, 401);
   }
+  */
+  const user = req.user;
 
   try {
     const { title, content } = await bodyParser(req);
@@ -113,7 +118,7 @@ export async function createPost(req, res) {
 
     const newPost = {
       id: (db.posts.length + 1).toString(),
-      userId: authUser.id,
+      userId: user.id,
       title,
       content,
     };
@@ -138,11 +143,14 @@ export function getCommentByPostId(req, res, postId) {
 }
 
 export async function createComment(req, res, postId) {
+	/*
 	// check authentication
 	const authUser = authenticate(req);
 	if (!authUser) {
 		return sendJSON(res, { message: "Unauthorized" }, 401);
 	}
+	*/
+	const user = req.user;
 	
 	// verify post exists
 	const post = db.posts.find((p) => p.id === postId);
@@ -160,7 +168,7 @@ export async function createComment(req, res, postId) {
 		const newComment = {
 			id: (db.comments.length + 1).toString(),
 			postId: postId,
-			userId: authUser.id,
+			userId: user.id,
 			content,
 		};
 		

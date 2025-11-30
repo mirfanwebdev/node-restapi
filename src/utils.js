@@ -71,3 +71,23 @@ export function authenticate(req) {
 
   return user || null;
 }
+
+/**
+ * AUTH MIDDLEWARE WRAPPER (Higher-Order Function)
+ * This function takes a handler and returns a new handler that enforces authentication.
+ * If successful, it attaches the user object to req.user before calling the original handler.
+ * @param {Function} handler - The original route handler (req, res, ...params)
+ * @returns {Function} A new handler function with authentication logic
+ */
+ export function authWrapper(handler) {
+	 return async (req, res, ...params) => {
+		 const authUser = authenticate(req);
+		 
+		 if (!authUser) {
+			 return sendJSON(res, { message: "Unauthorized" }, 401);
+		 }
+		 
+		 req.user = authUser;
+		 return handler(req, res, ...params);
+	 }
+ }
