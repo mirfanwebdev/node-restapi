@@ -91,3 +91,30 @@ export function authenticate(req) {
 		 return handler(req, res, ...params);
 	 }
  }
+ 
+ // Custom error class
+ export class AppError extends Error {
+	 constructor(message, statusCode) {
+		 super(message);
+		 this.statusCode = statusCode;
+		 this.isOperational = true; // mark as a known error
+	 }
+ }
+
+// control error sender
+export function sendError(res, err) {
+	const statusCode = err.statusCode || 500;
+	const message = err.message || "Internal server error";
+	
+	// log unexpected error to console
+	if (statusCode === 500) {
+		console.error("Internal Error:", err);
+	}
+	
+	res.writeHead(statusCode, { "Content-Type": "application/json" });
+	res.end(JSON.stringify({
+		status: "error",
+		statusCode,
+		message
+	}));
+}
