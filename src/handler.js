@@ -1,5 +1,5 @@
 import db from "./db.js";
-import { sendJSON, bodyParser, authenticate } from "./utils.js";
+import { sendJSON, bodyParser, AppError } from "./utils.js";
 
 /*
 // send json helper (response handler)
@@ -9,16 +9,18 @@ function sendJSON(res, data, statusCode = 200) {
 }
 */
 
-export function getAllUsers(req, res) {
+export async function getAllUsers(req, res) {
   sendJSON(res, db.users);
 }
 
-export function getUserById(req, res, id) {
+export async function getUserById(req, res, id) {
   const user = db.users.find((u) => u.id === id);
 
   if (!user) {
-    sendJSON(res, { message: "User not found" }, 404);
-  } else sendJSON(res, user);
+    //sendJSON(res, { message: "User not found" }, 404);
+	throw new AppError("User not found", 404);
+  }
+  sendJSON(res, user);
 }
 
 export async function createUser(req, res) {
@@ -30,15 +32,16 @@ export async function createUser(req, res) {
   }
   */
   
-  try {
+  //try {
     const { name, email, password } = await bodyParser(req);
 
     if (!name || !email || !password) {
-      return sendJSON(
-        res,
-        { message: "Name, email and password are required" },
-        400
-      );
+      //return sendJSON(
+      //  res,
+      //   { message: "Name, email and password are required" },
+      //  400
+      //);
+	  throw new AppError("Name, email, and password are required", 400);
     }
 
     const newUser = {
@@ -50,9 +53,9 @@ export async function createUser(req, res) {
 
     db.users.push(newUser);
     sendJSON(res, newUser, 201);
-  } catch (err) {
-    sendJSON(res, { message: err.message || "Invalid request" }, 400);
-  }
+  //} catch (err) {
+  //  sendJSON(res, { message: err.message || "Invalid request" }, 400);
+  //}
   /*
 	let body = "";
 	
@@ -84,18 +87,19 @@ export async function createUser(req, res) {
 }
 
 // post handlers
-export function getAllPost(req, res) {
+export async function getAllPost(req, res) {
   sendJSON(res, db.posts);
 }
 
-export function getPostById(req, res, id) {
+export async function getPostById(req, res, id) {
   const post = db.posts.find((p) => p.id === id);
 
   if (!post) {
-    return sendJSON(res, { message: "Post not found" }, 404);
+  //return sendJSON(res, { message: "Post not found" }, 404);
+    throw new AppError("Post not found", 404);
   }
 
-  return sendJSON(res, post);
+  sendJSON(res, post);
 }
 
 export async function createPost(req, res) {
@@ -109,11 +113,12 @@ export async function createPost(req, res) {
   */
   const user = req.user;
 
-  try {
+  //try {
     const { title, content } = await bodyParser(req);
 
     if (!title || !content) {
-      return sendJSON(res, { message: "Title and content are required" }, 400);
+    //  return sendJSON(res, { message: "Title and content are required" }, 400);
+	  throw new AppError("Title and content are required", 400);
     }
 
     const newPost = {
@@ -125,17 +130,18 @@ export async function createPost(req, res) {
 
     db.post.push(newPost);
     sendJSON(res, newPost, 201);
-  } catch (err) {
-    sendJSON(res, { message: err.message || "Invalid request" }, 400);
-  }
+  //} catch (err) {
+  //  sendJSON(res, { message: err.message || "Invalid request" }, 400);
+  //}
 }
 
 // comments handlers
-export function getCommentByPostId(req, res, postId) {
+export async function getCommentByPostId(req, res, postId) {
 	const post = db.posts.find((p) => p.id === postId);
 	
 	if (!post) {
-		return sendJSON(res, { message: "Post not found" }, 404);
+	//	return sendJSON(res, { message: "Post not found" }, 404);
+	  throw new AppError("Post not found", 404);
 	}
 	
 	const comments = db.comments.filter((c) => c.postId === postId);
@@ -155,14 +161,16 @@ export async function createComment(req, res, postId) {
 	// verify post exists
 	const post = db.posts.find((p) => p.id === postId);
 	if (!post) {
-		return sendJSON(res, { message: "Post not found" }, 404);
+	//	return sendJSON(res, { message: "Post not found" }, 404);
+	  throw new AppError("Post not found", 404);
 	}
 	
-	try {
+	//try {
 		const { content } = await bodyParser(req);
 		
 		if (!content) {
-			return sendJSON(res, { message: "content is required"}, 400);
+		//	return sendJSON(res, { message: "content is required"}, 400);
+		  throw new AppError("Content is required", 400);
 		}
 		
 		const newComment = {
@@ -174,12 +182,12 @@ export async function createComment(req, res, postId) {
 		
 		db.comments.push(newComment);
 		sendJSON(res, newComment, 201);
-	} catch (err) {
-		sendJSON(res, { message: err.message || "Invalid request"}, 400)
-	} 
+	//} catch (err) {
+	//	sendJSON(res, { message: err.message || "Invalid request"}, 400)
+	//} 
 	
 }
 
-export function handleNotFound(req, res) {
-  sendJSON(res, { message: "Route not found" }, 404);
-}
+//export function handleNotFound(req, res) {
+//  sendJSON(res, { message: "Route not found" }, 404);
+//}
