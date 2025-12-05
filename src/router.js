@@ -10,7 +10,7 @@ import {
   createComment,
   handleNotFound,
 } from "./handler.js";
-import { authWrapper } from "./utils.js";
+import { authWrapper, AppError, sendError } from "./utils.js";
 
 const routes = [
   {
@@ -52,24 +52,32 @@ const routes = [
   }
 ];
 
-export default function router(req, res) {
+export default async function router(req, res) {
   const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
   const { pathname } = parsedUrl;
 
   console.log(`Incoming request: ${req.method} ${pathname}`);
 
-  for (const route of routes) {
-    const match = pathname.match(route.path);
+  try {
+    for (const route of routes) {
+      const match = pathname.match(route.path);
 
-    if (match) {
-      const handler = route.handlers[req.method];
+      if (match) {
+        const handler = route.handlers[req.method];
 
-      if (handler) {
-        const params = match.slice(1);
-        return handler(req, res, ...params);
+        if (handler) {
+          const params = match.slice(1);
+          await handler(req, res, ...params);
+		  return;
+        }
       }
     }
+	
+	throw new AppError("Route not found", 404);
+  } catch (error) {
+	  sendError(res, error);
   }
+  
 
   //const userIdRegex = /^\/api\/users\/([a-zA-Z0-9]+)$/;
   //const idMatch = pathname.match(userIdRegex);
@@ -90,5 +98,5 @@ export default function router(req, res) {
   //	return createUser(req, res);
   //}
 
-  return handleNotFound(req, res);
+  //return handleNotFound(req, res);
 }
