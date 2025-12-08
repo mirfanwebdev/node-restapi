@@ -1,3 +1,5 @@
+import db from "./db.js"
+
 /**
  * A utility function to send a JSON response.
  * @param {http.ServerResponse} res - The response object
@@ -48,28 +50,32 @@ export function bodyParser(req) {
  * @param {http.IncomingMessage} req
  * @returns {object|null} The authenticated user object or null
  */
-export function authenticate(req) {
+ // async auth
+async function authenticate(req) {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
-    return null;
-  }
+  //if (!authHeader) {
+  //  return null;
+  //}
+  if (!authHeader) return null;
 
   const [type, credentials] = authHeader.split(" ");
 
-  if (type !== "Basic" || credentials) {
-    return null;
-  }
+  //if (type !== "Basic" || credentials) {
+  //  return null;
+  //}
+  if (type !== "Basic" || credentials) return null;
 
   const decoded = Buffer.from(credentials, "base64").toString("utf-8");
 
   const [email, password] = decoded.split(":");
 
-  const user = db.users.find(
-    (u) => u.email === email && u.password === password
-  );
+  //const user = db.users.find(
+  //  (u) => u.email === email && u.password === password
+  //);
 
-  return user || null;
+  //return user || null;
+  return await db.users.findByCredentials(email, password);
 }
 
 /**
@@ -81,10 +87,11 @@ export function authenticate(req) {
  */
  export function authWrapper(handler) {
 	 return async (req, res, ...params) => {
-		 const authUser = authenticate(req);
+		 const authUser = await authenticate(req);
 		 
 		 if (!authUser) {
-			 return sendJSON(res, { message: "Unauthorized" }, 401);
+			 //return sendJSON(res, { message: "Unauthorized" }, 401);
+			 throw new AppError("Unauthorized", 401)
 		 }
 		 
 		 req.user = authUser;
