@@ -1,4 +1,6 @@
-const db = {
+const delay = (ms = 50) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const data = {
   users: [
     {
       id: "1",
@@ -36,6 +38,66 @@ const db = {
 		id: "2", postId: "1", userId: "1", content: "Thanks Jane!",
 	}
   ],
+};
+
+const db = {
+	users: {
+		async findAll() {
+			await delay();
+			return [...data.users];
+		},
+		async findById(id) {
+			await delay();
+			return data.users.find((u) => u.id === id);
+		},
+		async findByCredential(email, password) {
+			await delay();
+			return data.users.find((u) => u.email === email && u.password === password);
+		},
+		async create(user) {
+			await delay();
+			data.users.push(user);
+			return user;
+		},
+		async count() {
+			await delay();
+			return data.users.length;
+		}
+	},
+	posts: {
+		async findAll() {
+			await delay();
+			return [...data.posts];
+		},
+		async findById(id) {
+			await delay();
+			return data.posts.find((u) => u.id === id);
+		},
+		async create(post) {
+			await delay();
+			data.posts.push(post);
+			return post;
+		},
+		async count() {
+			await delay();
+			return data.posts.length;
+		}
+	},
+	cooments: {
+		async findByPostId(postId) {
+			await delay();
+			return data.comments.filter((c) => c.postId === postId);
+		},
+		async create(comment) {
+			await delay();
+			data.comments.push(comment)
+			return comment;
+		},
+		async count() {
+			await delay();
+			return data.comments.length;
+		}
+	},
 };
 
 export default db;
