@@ -10,11 +10,14 @@ function sendJSON(res, data, statusCode = 200) {
 */
 
 export async function getAllUsers(req, res) {
-  sendJSON(res, db.users);
+  const users = await db.users.findAll();
+  //sendJSON(res, db.users);
+  sendJSON(res, users);
 }
 
 export async function getUserById(req, res, id) {
-  const user = db.users.find((u) => u.id === id);
+  //const user = db.users.find((u) => u.id === id);
+  const user = db.users.findById(id);
 
   if (!user) {
     //sendJSON(res, { message: "User not found" }, 404);
@@ -43,15 +46,18 @@ export async function createUser(req, res) {
       //);
 	  throw new AppError("Name, email, and password are required", 400);
     }
+	
+	const count = await db.users.cout();
 
     const newUser = {
-      id: (db.users.length + 1).toString(),
+      id: (count + 1).toString(), //(db.users.length + 1).toString(),
       name,
       email,
       password,
     };
 
-    db.users.push(newUser);
+    //db.users.push(newUser);
+	await db.users.create(newUser);
     sendJSON(res, newUser, 201);
   //} catch (err) {
   //  sendJSON(res, { message: err.message || "Invalid request" }, 400);
@@ -88,11 +94,13 @@ export async function createUser(req, res) {
 
 // post handlers
 export async function getAllPost(req, res) {
-  sendJSON(res, db.posts);
+  const posts = await db.posts.findAll();
+  
+  sendJSON(res, posts) // db.posts);
 }
 
 export async function getPostById(req, res, id) {
-  const post = db.posts.find((p) => p.id === id);
+  const post = db.posts.findById(id); //find((p) => p.id === id);
 
   if (!post) {
   //return sendJSON(res, { message: "Post not found" }, 404);
@@ -121,14 +129,16 @@ export async function createPost(req, res) {
 	  throw new AppError("Title and content are required", 400);
     }
 
+	const count = db.posts.count();
     const newPost = {
-      id: (db.posts.length + 1).toString(),
+      id: (count + 1).toString(), //(db.posts.length + 1).toString(),
       userId: user.id,
       title,
       content,
     };
 
-    db.post.push(newPost);
+    //db.post.push(newPost);
+	await db.posts.create(newPost);
     sendJSON(res, newPost, 201);
   //} catch (err) {
   //  sendJSON(res, { message: err.message || "Invalid request" }, 400);
@@ -137,14 +147,14 @@ export async function createPost(req, res) {
 
 // comments handlers
 export async function getCommentByPostId(req, res, postId) {
-	const post = db.posts.find((p) => p.id === postId);
+	const post = db.posts.findById(postId); //find((p) => p.id === postId);
 	
 	if (!post) {
 	//	return sendJSON(res, { message: "Post not found" }, 404);
 	  throw new AppError("Post not found", 404);
 	}
 	
-	const comments = db.comments.filter((c) => c.postId === postId);
+	const comments = db.comments.findByPostId(postId); //filter((c) => c.postId === postId);
 	sendJSON(res, comments);
 }
 
@@ -159,7 +169,7 @@ export async function createComment(req, res, postId) {
 	const user = req.user;
 	
 	// verify post exists
-	const post = db.posts.find((p) => p.id === postId);
+	const post = db.posts.findByPostId(postId); //find((p) => p.id === postId);
 	if (!post) {
 	//	return sendJSON(res, { message: "Post not found" }, 404);
 	  throw new AppError("Post not found", 404);
@@ -173,14 +183,16 @@ export async function createComment(req, res, postId) {
 		  throw new AppError("Content is required", 400);
 		}
 		
+		const count = db.comments.count();
 		const newComment = {
-			id: (db.comments.length + 1).toString(),
+			id: (count + 1).toString(); //(db.comments.length + 1).toString(),
 			postId: postId,
 			userId: user.id,
 			content,
 		};
 		
-		db.comments.push(newComment);
+		//db.comments.push(newComment);
+		await db.comments.create(newComment);
 		sendJSON(res, newComment, 201);
 	//} catch (err) {
 	//	sendJSON(res, { message: err.message || "Invalid request"}, 400)
