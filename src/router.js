@@ -12,6 +12,74 @@ import {
 } from "./handler.js";
 import { authWrapper, AppError, sendError } from "./utils.js";
 
+// Simple Router class to manage routes and dispatch request
+
+class Router {
+	constructor() {
+		this.routes = [];
+	}
+	
+	/*
+	* Internal method to register a Route
+	* Converts path strings (e.g. "/users/:id") into regex
+	*/
+	add(method, path, handler) {
+		const paramNames = [];
+		
+		// Escape forward slashes ( / => \/)
+		let regexPath = path.replaces(/\//g, "\\/");
+		
+		// Replace :param parameter with capture groups
+		// e.g., :id => ([a-zA-Z0-9]+)
+		regexPath = regexPath.replace(/:([a-zA-Z0-9]+)/g, (_, key) => {
+			paramNames.push(key);
+			return "([a-zA-Z0-9]+)";
+		});
+		
+		// Create the final regex (anchored start ^ and end $)
+		const regex = new RegExp(`^${regexPath}$`);
+		
+		this.routes.push({
+			method,
+			regex,
+			paramNames,
+			handler,
+		});
+	}
+	
+	get(path, handler) {
+		this.add("GET", path, handler);
+	}
+	
+	post(path, handler) {
+		this.add("POST", path, handler);
+	}
+	
+	async serve(req, res) {
+		const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
+		const { pathname } = parsedUrl;
+		
+		console.log(`Incoming request: ${req.method} ${pathname}`);
+		
+		try {
+			for (const route of this.routes) {
+				if (route.method !== req.method) continue;
+				
+				const match = pathname.match(route.regex);
+				if (match) {
+					const params = match.slice(1);
+					
+					await route.handler(req, res, ...params);
+					return;
+				}
+			}
+		} catch (error) {
+			sendError(res, error);
+		}
+	}
+}
+
+/*
 const routes = [
   {
     // matches /api/users
@@ -100,3 +168,4 @@ export default async function router(req, res) {
 
   //return handleNotFound(req, res);
 }
+*/
