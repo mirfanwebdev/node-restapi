@@ -79,6 +79,21 @@ class Router {
 	}
 }
 
+const router = new Router();
+
+router.get("/api/users", getAllUsers);
+router.post("/api/users", authWrapper(createUser));
+router.get("/api/users/:id", getUserById);
+
+router.get("/api/posts", getAllPost);
+router.post("/api/posts", authWrapper(createPost));
+router.get("/api/posts/:id", getPostById);
+
+router.get("/api/posts/:postId/comments", getCommentByPostId);
+router.post("/api/posts/:postId/comments", authWrapper(createComment));
+
+export default (req, res) => router.serve(req, res);
+
 /*
 const routes = [
   {
