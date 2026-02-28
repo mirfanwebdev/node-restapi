@@ -192,3 +192,19 @@ function validate(data, schema) {
 	
 	return errors;
 }
+
+/**
+* Parse query string from URL
+*/
+export function parseQuery(req) {
+	const url = new URL(req.url, `http://${req.headers.host}`);
+	const query = [];
+
+	for (const [key, value] of url.searchParams.entries()) {
+		// try convert to number if possible
+		const num = Number(value);
+		query[key] = isNan(num) ? value : num;
+	}
+
+	return query;
+}
