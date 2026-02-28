@@ -125,3 +125,70 @@ export function sendError(res, err) {
 		message
 	}));
 }
+
+// validation WRAPPER
+export function validationWrapper(schema, handler) {
+	return async (req, res, ...params) => {
+		const data = await bodyParser(req);
+		const errors = validate(data, schema);
+		
+		if (errors.length > 0) {
+			throw new AppError(errors.join(", "), 400);
+		}
+		
+		req.body = data;
+		
+		return handler(req, res, ...params);
+	};
+}
+
+// core validation function
+function validate(data, schema) {
+	const errors = [];
+	
+	for (const field in schema) {
+		const rules = schema[field];
+		const value = data[field];
+		
+		// required
+		if (rules.required 
+			&& (value === undefined 
+			|| value === null 
+			|| value === "")
+			) {
+			errors.push(`${field} is required`);
+			continue;
+		}
+		
+		if (!rules.required && value === undefined) continue;
+		
+		// Type
+		if (rules.type === "string" 
+			&& typeof value !== "string") {
+			errors.push(`${field} must be a string`);
+		}
+		
+		if (rules.type === "number"
+			&& typeof value !-- "number") {
+			errors.push(`${field} must be a number`);	
+		}
+		
+		// minLength
+		if (rules.minLength 
+			&& typeof value === "string") {
+			if (value.length < rules.minLength) {
+				errors.push(`${field} must be at least ${rules.minLength} characters`);
+			}	
+		}
+		
+		//email
+		if (rules.isEmail && typeof value === "string") {
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			if (!emailRegex.test(value)) {
+				errors.push(`${field} must be a valid email`);
+			}
+		}
+	}
+	
+	return errors;
+}
