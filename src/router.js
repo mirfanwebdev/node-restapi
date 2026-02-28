@@ -3,7 +3,7 @@ import {
   getAllUsers,
   getUserById,
   createUser,
-  getAllPost,
+  getPosts,
   getPostById,
   createPost,
   getCommentByPostId,
@@ -26,6 +26,11 @@ const postSchema = {
 
 const commentSchema = {
 	content: { required: true, type: "string", minLength: 1 }
+};
+
+const postQuerySchema = {
+	limit: { type: "number", min: 1 },
+	page: { type: "number", min: 1 }
 };
 
 // Simple Router class to manage routes and dispatch request
@@ -103,7 +108,10 @@ router.post(
 );
 router.get("/api/users/:id", getUserById);
 
-router.get("/api/posts", getAllPost);
+router.get(
+  "/api/posts",
+  validateWrapper(postQuerySchema, getPosts, "query")
+);
 router.post(
   "/api/posts", 
   authWrapper(validateWrapper(postSchema, createPost))

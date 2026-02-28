@@ -94,10 +94,26 @@ export async function createUser(req, res) {
 }
 
 // post handlers
-export async function getAllPost(req, res) {
-  const posts = await db.posts.findAll();
+export async function getPosts(req, res) {
+  const { limit = 10, page = 1 } = req.query;
   
-  sendJSON(res, posts) // db.posts);
+  const parsedLimit = Number(limit);
+  const parsedPage = Number(page);
+  
+  const startIndex = (parsedPage - 1) * parsedLimit;
+  const endIndex = startIndex + parsedLimit;
+  
+  const posts = await db.posts.findAll();
+  const paginatedPosts = posts.slice(startIndex, endIndex);
+  
+  //sendJSON(res, posts) // db.posts);
+  sendJSON(res, {
+	  total: posts.length,
+	  page: parsedPage,
+	  limit: parsedLimit,
+	  totalPages: Math.ceil(posts.length / parsedLimit),
+	  data: paginatedPosts
+  });
 }
 
 export async function getPostById(req, res, id) {
