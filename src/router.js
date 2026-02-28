@@ -11,9 +11,24 @@ import {
   handleNotFound,
 } from "./handler.js";
 import { authWrapper, AppError, sendError } from "./utils.js";
+import { validateWrapper } from "./utils.js";
+
+const userSchema = {
+	name: { required: true, type: "string", minLength: 3 },
+	email: { required: true, type: "string", isEmail: true },
+	password: { required: true, type: "string", minLenght: 6 }
+};
+
+const postSchema = {
+	title: { required: true, type: "string", minLength: 3 },
+	content: { required: true, type: "string", minLength: 5 },
+};
+
+const commentSchema = {
+	content: { required: true, type: "string", minLength: 1 }
+};
 
 // Simple Router class to manage routes and dispatch request
-
 class Router {
 	constructor() {
 		this.routes = [];
@@ -82,15 +97,24 @@ class Router {
 const router = new Router();
 
 router.get("/api/users", getAllUsers);
-router.post("/api/users", authWrapper(createUser));
+router.post(
+  "/api/users", 
+  authWrapper(validateWrapper(userSchema, createUser))
+);
 router.get("/api/users/:id", getUserById);
 
 router.get("/api/posts", getAllPost);
-router.post("/api/posts", authWrapper(createPost));
+router.post(
+  "/api/posts", 
+  authWrapper(validateWrapper(postSchema, createPost))
+);
 router.get("/api/posts/:id", getPostById);
 
 router.get("/api/posts/:postId/comments", getCommentByPostId);
-router.post("/api/posts/:postId/comments", authWrapper(createComment));
+router.post(
+  "/api/posts/:postId/comments", 
+  authWrapper(validateWrapper(commentSchema, createComment))
+);
 
 export default (req, res) => router.serve(req, res);
 
