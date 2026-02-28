@@ -36,7 +36,8 @@ export async function createUser(req, res) {
   */
   
   //try {
-    const { name, email, password } = await bodyParser(req);
+  //  const { name, email, password } = await bodyParser(req);
+  const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
       //return sendJSON(
@@ -122,8 +123,9 @@ export async function createPost(req, res) {
   const user = req.user;
 
   //try {
-    const { title, content } = await bodyParser(req);
-
+  //  const { title, content } = await bodyParser(req);
+  const { title, content } = req.body;
+	
     if (!title || !content) {
     //  return sendJSON(res, { message: "Title and content are required" }, 400);
 	  throw new AppError("Title and content are required", 400);
@@ -176,8 +178,9 @@ export async function createComment(req, res, postId) {
 	}
 	
 	//try {
-		const { content } = await bodyParser(req);
-		
+	//	const { content } = await bodyParser(req);
+	const { content } = req.body;
+	
 		if (!content) {
 		//	return sendJSON(res, { message: "content is required"}, 400);
 		  throw new AppError("Content is required", 400);
