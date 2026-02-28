@@ -127,23 +127,33 @@ export function sendError(res, err) {
 }
 
 // validation WRAPPER
-export function validationWrapper(schema, handler) {
+export function validationWrapper(schema, handler, source = "body") {
 	return async (req, res, ...params) => {
-		const data = await bodyParser(req);
+		let data;
+	//	const data = await bodyParser(req);
+		if (source === "body") {
+			data = await bodyParser(req);
+			req.query = data;
+		}
+		
+		if (source === "query") {
+			data = parseQuery(req);
+			req.query = data;
+		}
+		
 		const errors = validate(data, schema);
 		
 		if (errors.length > 0) {
 			throw new AppError(errors.join(", "), 400);
-		}
-		
-		req.body = data;
+		}	
+	//	req.body = data;
 		
 		return handler(req, res, ...params);
 	};
 }
 
 // core validation function
-function validate(data, schema) {
+function validate(data = {}, schema) {
 	const errors = [];
 	
 	for (const field in schema) {
@@ -160,7 +170,8 @@ function validate(data, schema) {
 			continue;
 		}
 		
-		if (!rules.required && value === undefined) continue;
+		if (value === undefined) continue;	
+	//	if (!rules.required && value === undefined) continue;
 		
 		// Type
 		if (rules.type === "string" 
@@ -169,8 +180,15 @@ function validate(data, schema) {
 		}
 		
 		if (rules.type === "number"
-			&& typeof value !-- "number") {
+			&& typeof value !== "number") {
 			errors.push(`${field} must be a number`);	
+		}
+		
+		if (
+			rules.min 
+			&& typeof value === "number" 
+			&& value < rules.min) {
+			errors.push(`${field} must be at least ${rules.min}`);
 		}
 		
 		// minLength
