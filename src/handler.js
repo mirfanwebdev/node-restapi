@@ -1,5 +1,9 @@
 import db from "./db.js";
-import { sendJSON, bodyParser, AppError } from "./utils.js";
+import { 
+	sendJSON, 
+//	bodyParser, 
+	AppError 
+	} from "./utils.js";
 
 /*
 // send json helper (response handler)
@@ -97,11 +101,14 @@ export async function createUser(req, res) {
 export async function getPosts(req, res) {
   const { limit = 10, page = 1 } = req.query;
   
-  const parsedLimit = Number(limit);
-  const parsedPage = Number(page);
+  const startIndex = (page -1) * limit;
+  const endIndex = startIndex + limit;
   
-  const startIndex = (parsedPage - 1) * parsedLimit;
-  const endIndex = startIndex + parsedLimit;
+//  const parsedLimit = Number(limit);
+//  const parsedPage = Number(page);
+  
+//  const startIndex = (parsedPage - 1) * parsedLimit;
+//  const endIndex = startIndex + parsedLimit;
   
   const posts = await db.posts.findAll();
   const paginatedPosts = posts.slice(startIndex, endIndex);
@@ -109,9 +116,12 @@ export async function getPosts(req, res) {
   //sendJSON(res, posts) // db.posts);
   sendJSON(res, {
 	  total: posts.length,
-	  page: parsedPage,
-	  limit: parsedLimit,
-	  totalPages: Math.ceil(posts.length / parsedLimit),
+	  page,
+	  limit,
+	  totalPage: Math.ceil(posts.length / limit),
+//	  page: parsedPage,
+//	  limit: parsedLimit,
+//	  totalPages: Math.ceil(posts.length / parsedLimit),
 	  data: paginatedPosts
   });
 }
