@@ -10,8 +10,11 @@ import {
   createComment,
   handleNotFound,
 } from "./handler.js";
-import { authWrapper, AppError, sendError } from "./utils.js";
-import { validateWrapper } from "./utils.js";
+//import { authWrapper, AppError, sendError } from "./utils.js";
+//import { validateWrapper } from "./utils.js";
+import { AppError, sendError } from "./utils.js";
+import { authMiddleware } from "./middlewares/auth.js";
+import { validateBody, validateQuery } from "./middlewares/validation.js";
 
 const userSchema = {
 	name: { required: true, type: "string", minLength: 3 },
@@ -127,25 +130,36 @@ const router = new Router();
 
 router.get("/api/users", getAllUsers);
 router.post(
-  "/api/users", 
-  authWrapper(validateWrapper(userSchema, createUser))
+  "/api/users",
+  authMiddleware,
+  validateBody(userSchema),
+  createUser  
+//  authWrapper(validateWrapper(userSchema, createUser))
 );
 router.get("/api/users/:id", getUserById);
 
 router.get(
   "/api/posts",
-  validateWrapper(postQuerySchema, getPosts, "query")
+  validateQuery(postQuerySchema),
+  getPosts
+//  validateWrapper(postQuerySchema, getPosts, "query")
 );
 router.post(
-  "/api/posts", 
-  authWrapper(validateWrapper(postSchema, createPost))
+  "/api/posts",
+  authMiddleware,
+  validateBody(postSchema),
+  createPost  
+//  authWrapper(validateWrapper(postSchema, createPost))
 );
 router.get("/api/posts/:id", getPostById);
 
 router.get("/api/posts/:postId/comments", getCommentByPostId);
 router.post(
-  "/api/posts/:postId/comments", 
-  authWrapper(validateWrapper(commentSchema, createComment))
+  "/api/posts/:postId/comments",
+  authMiddleware,
+  validateBody(commentSchema),
+  createComment  
+//  authWrapper(validateWrapper(commentSchema, createComment))
 );
 
 export default (req, res) => router.serve(req, res);
