@@ -51,6 +51,7 @@ export function bodyParser(req) {
  * @returns {object|null} The authenticated user object or null
  */
  // async auth
+ /*
 async function authenticate(req) {
   const authHeader = req.headers.authorization;
 
@@ -77,6 +78,7 @@ async function authenticate(req) {
   //return user || null;
   return await db.users.findByCredentials(email, password);
 }
+*/
 
 /**
  * AUTH MIDDLEWARE WRAPPER (Higher-Order Function)
@@ -101,6 +103,7 @@ async function authenticate(req) {
  *}
  */
  
+ /*
  export async function authMiddleware(req, res, next) {
 	 const authUser = await authenticate(req);
 	 
@@ -110,6 +113,7 @@ async function authenticate(req) {
 	 
 	 await next();
  }
+ */
  
  // Custom error class
  export class AppError extends Error {
@@ -139,6 +143,7 @@ export function sendError(res, err) {
 }
 
 // validation WRAPPER
+/*
 export function validationWrapper(schema, handler, source = "body") {
 	return async (req, res, ...params) => {
 		let data;
@@ -163,8 +168,10 @@ export function validationWrapper(schema, handler, source = "body") {
 		return handler(req, res, ...params);
 	};
 }
+*/
 
 // core validation function
+/*
 function validate(data = {}, schema) {
 	const errors = [];
 	
@@ -222,10 +229,12 @@ function validate(data = {}, schema) {
 	
 	return errors;
 }
+*/
 
 /**
 * Parse query string from URL
 */
+/*
 export function parseQuery(req) {
 	const url = new URL(req.url, `http://${req.headers.host}`);
 	const query = [];
@@ -238,3 +247,4 @@ export function parseQuery(req) {
 
 	return query;
 }
+*/
