@@ -43,11 +43,11 @@ class Router {
 	* Internal method to register a Route
 	* Converts path strings (e.g. "/users/:id") into regex
 	*/
-	add(method, path, handler) {
+	add(method, path, handlers) {
 		const paramNames = [];
 		
 		// Escape forward slashes ( / => \/)
-		let regexPath = path.replaces(/\//g, "\\/");
+		let regexPath = path.replace(/\//g, "\\/");
 		
 		// Replace :param parameter with capture groups
 		// e.g., :id => ([a-zA-Z0-9]+)
@@ -63,21 +63,23 @@ class Router {
 			method,
 			regex,
 			paramNames,
-			handler,
+			handlers,
 		});
 	}
 	
-	get(path, handler) {
-		this.add("GET", path, handler);
+	get(path, ...handlers) {
+		this.add("GET", path, handlers);
 	}
 	
-	post(path, handler) {
-		this.add("POST", path, handler);
+	post(path, ...handlers) {
+		this.add("POST", path, handlers);
 	}
 	
 	async serve(req, res) {
 		const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
 		const { pathname } = parsedUrl;
+		
+		
 		
 		console.log(`Incoming request: ${req.method} ${pathname}`);
 		
@@ -89,13 +91,29 @@ class Router {
 				if (match) {
 					const params = match.slice(1);
 					
-					await route.handler(req, res, ...params);
+					//await route.handler(req, res, ...params);
+					await this.runMiddlewares(req, res, route.handlers, params);
 					return;
 				}
 			}
+			
+			sendError(res, new AppError("Route Not Found", 404));
 		} catch (error) {
 			sendError(res, error);
 		}
+	}
+	
+	async runMiddlewares(req, res, handlers, params) {
+		let index = 0;
+		
+		async function next() {
+			if (index >= handlers.length) return;
+			
+			const handler = handlers[index++];
+			await handler(req, res, next, ...params)
+		}
+		
+		await next();
 	}
 }
 
