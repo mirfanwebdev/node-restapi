@@ -85,18 +85,30 @@ async function authenticate(req) {
  * @param {Function} handler - The original route handler (req, res, ...params)
  * @returns {Function} A new handler function with authentication logic
  */
- export function authWrapper(handler) {
-	 return async (req, res, ...params) => {
-		 const authUser = await authenticate(req);
-		 
-		 if (!authUser) {
-			 //return sendJSON(res, { message: "Unauthorized" }, 401);
-			 throw new AppError("Unauthorized", 401)
-		 }
-		 
-		 req.user = authUser;
-		 return handler(req, res, ...params);
+/**
+ *export function authWrapper(handler) {
+ *	 return async (req, res, ...params) => {
+ *		 const authUser = await authenticate(req);
+ *		 
+ *		 if (!authUser) {
+ *			 //return sendJSON(res, { message: "Unauthorized" }, 401);
+ *			 throw new AppError("Unauthorized", 401)
+ *		 }
+ *		 
+ *		 req.user = authUser;
+ *		 return handler(req, res, ...params);
+ *	 }
+ *}
+ */
+ 
+ export async function authMiddleware(req, res, next) {
+	 const authUser = await authenticate(req);
+	 
+	 if (!authUser) {
+		 throw new AppError("Unauthorized", 401)
 	 }
+	 
+	 await next();
  }
  
  // Custom error class
