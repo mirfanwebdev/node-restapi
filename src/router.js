@@ -79,8 +79,6 @@ class Router {
 		const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
 		const { pathname } = parsedUrl;
 		
-		
-		
 		console.log(`Incoming request: ${req.method} ${pathname}`);
 		
 		try {
@@ -89,10 +87,17 @@ class Router {
 				
 				const match = pathname.match(route.regex);
 				if (match) {
-					const params = match.slice(1);
-					
+					//const params = match.slice(1);
 					//await route.handler(req, res, ...params);
-					await this.runMiddlewares(req, res, route.handlers, params);
+					
+					const values = match.slice(1);
+					
+					req.params = {};
+					route.paramNames.forEach((name, i) => {
+						req.params[name] = values[i];
+					});
+					
+					await this.runMiddlewares(req, res, route.handlers);
 					return;
 				}
 			}
@@ -103,14 +108,15 @@ class Router {
 		}
 	}
 	
-	async runMiddlewares(req, res, handlers, params) {
+	async runMiddlewares(req, res, handlers) {
 		let index = 0;
 		
 		async function next() {
 			if (index >= handlers.length) return;
+			if (res.writableEnded) return;
 			
 			const handler = handlers[index++];
-			await handler(req, res, next, ...params)
+			await handler(req, res, next)
 		}
 		
 		await next();
