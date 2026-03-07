@@ -48,11 +48,15 @@ const db = {
 		},
 		async findById(id) {
 			await delay();
-			return data.users.find((u) => u.id === id);
+			return data.users.find((u) => u.id === id) || null;
 		},
 		async findByCredential(email, password) {
 			await delay();
-			return data.users.find((u) => u.email === email && u.password === password);
+			return (
+			  data.users.find(
+			    (u) => u.email === email && u.password === password
+				) || null
+			);
 		},
 		async create(user) {
 			await delay();
@@ -71,7 +75,7 @@ const db = {
 		},
 		async findById(id) {
 			await delay();
-			return data.posts.find((u) => u.id === id);
+			return data.posts.find((u) => u.id === id) || null;
 		},
 		async create(post) {
 			await delay();
@@ -90,7 +94,7 @@ const db = {
 		},
 		async create(comment) {
 			await delay();
-			data.comments.push(comment)
+			data.comments.push(comment);
 			return comment;
 		},
 		async count() {
