@@ -8,11 +8,11 @@ async function authenticate(req) {
 	
 	const [type, credentials] = authHeader.split(" ");
 	
-	if (type !== "Basic" || credentials) return null;
+	if (type !== "Basic" || !credentials) return null;
 	
 	const decoded = Buffer.from(credentials, "base64").toString("utf-8");
 	
-	const [email, password] = decode.split(":");
+	const [email, password] = decoded.split(":");
 	
 	return await db.users.findByCredentials(email, password);
 }

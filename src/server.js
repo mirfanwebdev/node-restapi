@@ -4,7 +4,7 @@ import router from "./router.js";
 const PORT = process.env.PORT || 8000;
 
 const server = http.createServer((req, res) => {
-  router(req, res);
+  await router(req, res);
 });
 
 server.listen(PORT, () => {
