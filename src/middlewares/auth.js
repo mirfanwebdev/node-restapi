@@ -13,6 +13,7 @@ async function authenticate(req) {
 	const decoded = Buffer.from(credentials, "base64").toString("utf-8");
 	
 	const [email, password] = decoded.split(":");
+	if (!email || !password) return null;
 	
 	return await db.users.findByCredentials(email, password);
 }
@@ -24,5 +25,6 @@ export async function authMiddleware(req, res, next) {
 		throw new AppError("Unautorized", 401);
 	}
 	
+	req.user = authUser;
 	await next();
 }

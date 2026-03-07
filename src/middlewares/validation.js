@@ -1,3 +1,4 @@
+import { URL } from "node:url"
 import { bodyParser, AppError } from "../utils.js";
 
 function validate(data = {}, schema) {
@@ -28,13 +29,13 @@ function validate(data = {}, schema) {
 			errors.push(`${field} mus be a number`);	
 		}
 		
-		if (rules.min 
+		if (rules.min !== undefined 
 			&& typeof value === "number"
-			&& value.length < rules.min) {
+			&& value < rules.min) {
 			errors.push(`${field} must be at least ${rules.min}`);	
 		}
 		
-		if (rules.minLength
+		if (rules.minLength !== undefined
 			&& typeof value === "string"
 			&& value.length < rules.minLength) {
 			errors.push(`${field} mus be at least ${rules.minLength} characters`);			
@@ -42,7 +43,7 @@ function validate(data = {}, schema) {
 		
 		if (rules.isEmail 
 			&& typeof value === "string") {
-			const emailRegex = /^[^\s@]+@[^\s@]+\.[^s\@]+$/;
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 			if (!emailRegex.test(value)) {
 				errors.push(`${field} must be a valid email`);
 			}
